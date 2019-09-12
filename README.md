@@ -1,0 +1,1 @@
+"# Hubitat code for TRIGGERcmd" 
