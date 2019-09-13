@@ -12,6 +12,8 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
+ *  Updated for Hubitat Elevation (HE) by Royski 13/09/2019
+ *
  */
 
 import java.security.MessageDigest;
@@ -30,7 +32,6 @@ definition(
 	singleInstance: true    
 )
 
-
 preferences {
 	def msg = """Tap 'Next' after you have entered your TRIGGERcmd credentials.
 	
@@ -38,6 +39,7 @@ preferences {
 Once your credentials are accepted, Hubitat will scan your TRIGGERcmd account for commands."""
 
 	page(name: "selectDevices", title: "Connect your TRIGGERcmd commands to Hubitat", install: false, uninstall: true, nextPage: "chooseTriggers") {
+		section(){paragraph "<img src='https://images-na.ssl-images-amazon.com/images/I/517cuXm4+7L.png' width='100' height='100'</img> Version: $state.version <br>"}
 		section("TRIGGERcmd credentials") {
 			input "username", "text", title: "Enter TRIGGERcmd Email/UserName", required: true
 			input "password", "password", title: "Enter TRIGGERcmd Password", required: true
@@ -62,16 +64,6 @@ def installed() {
 	logCheck()     
 }
 
-// This works. 
-//def installed() {
-//	log.info "Initialised with settings: ${settings}"
-//
-//	unschedule()
-//	unsubscribe()
-//
-//	setupBulbs()       
-//}
-
 def updated() {
 
 	unschedule()
@@ -93,13 +85,6 @@ private removeChildDevices(delete) {
 		deleteChildDevice(it.device.deviceNetworkId)
 	}
 }
-
-//private removeChildDevices(delete) {
-//	log.debug "Removing {it.deviceNetworkId}"
-//	delete.each {
-//		deleteChildDevice(it.deviceNetworkId)
-//	}
-//}
 
 def uninstallFromChildDevice(childDevice)
 {
