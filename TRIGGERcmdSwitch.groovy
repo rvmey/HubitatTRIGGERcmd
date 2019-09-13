@@ -4,19 +4,36 @@
  *  Author: vanmeyconsulting@gmail.com
  *  Date: 2017-04-22
  *
- *
+ *  Updated for Hubitat Elevation (HE) by Royski 13/09/2019
  */
 // for the UI
 metadata {
-	definition (name: "TRIGGERcmd Switch", namespace: "vandermeyconsulting", author: "Russell VanderMey") {
-		capability "Switch"
-
+	definition (name: "TRIGGERcmd Switch", namespace: "vandermeyconsulting", author: "Russell VanderMey", 
+	importUrl: "https://raw.githubusercontent.com/rvmey/HubitatTRIGGERcmd/master/TRIGGERcmdSwitch.groovy") {
+        capability "Switch"
 }
 
 	preferences {
-		// input "stepsize", "number", title: "Step Size", description: "Dimmer Step Size", defaultValue: 5
+	
+		input name: "logEnable", type: "bool", title: "Enable debug logging", defaultValue: true
+        input name: "txtEnable", type: "bool", title: "Enable descriptionText logging", defaultValue: true
+        input name: "toggle", type: "bool", title: "Treat as a Momentary switch (on/Off)<br>Leave off if wanting to send Parameters to TRIGGERcmd.", defaultValue: true, submitOnChange: true
+		// input "stepsize", "number", title: "Step Size", description: "Dimmer Step Size", defaultValue: 5	
 	}
 
+}
+
+def logsOff(){
+    log.warn "debug logging disabled..."
+    device.updateSetting("logEnable",[value:"false",type:"bool"])
+}
+
+def updated(){
+log.info "updated..."
+    log.warn "debug logging is: ${logEnable == true}"
+    log.warn "description logging is: ${txtEnable == true}"
+    if (logEnable) runIn(1800,logsOff)
+    initialize()
 }
 
 // parse events into attributes
@@ -34,36 +51,37 @@ def parse(description) {
 }
 
 // handle commands
-def push() {
-    sendEvent(name: "switch", value: "on")
-    runIn(1,toggleSwitch)
+def on() {
+    if(toggle){
+    if (logEnabled) log.debug "Moving to onToggle"
+    toggleOn()
+ } else {
+    if (logEnabled) log.debug "toggle is $toggle.value"
+    sendEvent(name:"switch",value:on)    
+	parent.on(this)
+    log.debug "On command sent"
+	}
 }
+
+def toggleOn(){
+    if (logEnabled) log.debug "toggle is $toggle.value" 
+	sendEvent(name:"switch",value:on) 
+	parent.on(this)
+	runIn(1,toggleSwitch)
+    //off()
+    if (logEnabled) log.debug "Off Command sent"
+    } 
 
 def toggleSwitch(){
     sendEvent(name: "switch", value: "off")
 }
 
-def on() {
-	sendEvent(name:"switch",value:on)
-	parent.on(this)
-	push()
-    // off()
-}
 
-def off() {
-	sendEvent(name:"switch",value:off)
+def off(){
+    if (logEnabled) log.debug  "$device.label Off ..."
+	sendEvent(name:"switch", value:off)
 	parent.off(this)
-	push()
-}
 
-def poll() {
-	log.debug "Executing poll()"
-	parent.poll(this)
-}
-
-def refresh() {
-	log.debug "Executing refresh()"
-	parent.poll(this)
 }
 
 def installed() {
@@ -71,10 +89,7 @@ def installed() {
     // off()
 }
 
-def updated() {
-	initialize()
-	refresh()
-}
+
 
 def initialize() {
 	if ( !settings.stepsize )
