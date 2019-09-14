@@ -1,6 +1,6 @@
 # Hubitat code for TRIGGERcmd
 
-See TRIGGERcmd - Hubitat install.docx for installation instructions.
+See the "TRIGGERcmd - Hubitat install.docx" file for installation instructions.
 
 Or read more about it here:  https://community.hubitat.com/t/release-triggercmd-for-hubitat/22715
 
